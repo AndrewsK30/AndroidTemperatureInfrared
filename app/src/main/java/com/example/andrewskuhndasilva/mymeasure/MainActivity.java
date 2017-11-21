@@ -76,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mNoUsb = findViewById(R.id.no_usb_frame);
         mBarChart = findViewById(R.id.chart);
+        this.chartConfig();
+    }
+
+    private void chartConfig(){
         mBarChart.setPinchZoom(false);
         mBarChart.setDoubleTapToZoomEnabled(false);
         BarData data = new BarData(getDataSet());
@@ -85,8 +89,13 @@ public class MainActivity extends AppCompatActivity {
         mBarChart.getAxisLeft().setDrawGridLines(false);
         mBarChart.getAxisLeft().setDrawAxisLine(false);
         mBarChart.getAxisRight().setDrawGridLines(false);
+        mBarChart.getAxisLeft().setDrawLabels(false);
+        mBarChart.getAxisRight().setDrawLabels(false);
+        mBarChart.getXAxis().setDrawLabels(false);
         mBarChart.setDrawBorders(false);
         mBarChart.setData(data);
+        mBarChart.getLegend().setEnabled(false);
+        mBarChart.getDescription().setEnabled(false);
         mBarChart.animateXY(2000, 2000);
         mBarChart.invalidate();
     }

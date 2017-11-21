@@ -10,19 +10,18 @@
 
     <com.example.andrewskuhndasilva.mymeasure.widget.CustomSeekBar
         android:id="@+id/seek_arc"
-        android:layout_width="228dp"
-        android:layout_height="228dp"
+        android:layout_width="307dp"
+        android:layout_height="298dp"
         android:layout_gravity="center"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="20dp"
         android:clickable="false"
         app:arcWidthRate="0.5"
         app:endAngle="45"
         app:endColor="0xFF4B5300"
         app:endValue="380"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2"
         app:lineColor="0xFF4B53"
@@ -56,14 +55,12 @@
 
     <com.github.mikephil.charting.charts.HorizontalBarChart
         android:id="@+id/chart"
-        android:layout_width="389dp"
-        android:layout_height="259dp"
+        android:layout_width="266dp"
+        android:layout_height="130dp"
+        android:layout_marginBottom="40dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/seek_arc" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
     <android.support.constraint.ConstraintLayout
@@ -72,7 +69,7 @@
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
         android:background="@color/Back_color"
-        android:visibility="visible"
+        android:visibility="gone"
         tools:layout_editor_absoluteY="186dp"
         tools:visibility="gone">
 
@@ -94,6 +91,54 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="18dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Temp. min."
+        android:textColor="@android:color/white"
+        android:textSize="14dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.026"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="75dp"
+        android:layout_height="19dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Temp. max."
+        android:textColor="@android:color/white"
+        android:textSize="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.027"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        app:layout_constraintVertical_bias="0.157" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="81dp"
+        android:layout_height="19dp"
+        android:layout_marginBottom="96dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Temp. med."
+        android:textColor="@android:color/white"
+        android:textSize="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.027"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>
