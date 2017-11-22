@@ -65,13 +65,17 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/no_usb_frame"
-        android:layout_width="match_parent"
+        android:layout_width="385dp"
         android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
         android:animateLayoutChanges="true"
         android:background="@color/Back_color"
-        android:visibility="gone"
-        tools:layout_editor_absoluteY="186dp"
-        tools:visibility="gone">
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="-1dp"
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/text_no_usb"
