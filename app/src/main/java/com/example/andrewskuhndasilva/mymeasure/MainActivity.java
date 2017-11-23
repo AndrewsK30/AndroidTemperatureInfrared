@@ -15,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.andrewskuhndasilva.mymeasure.data.Temperature;
@@ -51,13 +52,14 @@ public class MainActivity extends AppCompatActivity {
     };
     @Getter
     private Temperature mTemperature = new Temperature();
-    private HorizontalBarChart mBarChart;
+    private HorizontalBarChart mHorizontalBarChart;
     private Menu mMenu;
     private AlphaAnimation inAnimation;
     private AlphaAnimation outAnimation;
     private boolean isOnNoUSB = true;
     private ConstraintLayout mNoUsb;
-    private CustomSeekBar bar;
+    private TextView mTextNoUsb;
+    private CustomSeekBar mProgressBar;
     private boolean isRedingTemp;
 
 
@@ -66,27 +68,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mNoUsb = findViewById(R.id.no_usb_frame);
-        bar = findViewById(R.id.seek_arc);
-        mBarChart = findViewById(R.id.chart);
+        mProgressBar = findViewById(R.id.seek_arc);
+        mHorizontalBarChart = findViewById(R.id.chart);
+        mTextNoUsb = findViewById(R.id.text_no_usb);
         this.chartConfig();
-    }
-
-    private void chartConfig(){
-        mBarChart.setPinchZoom(false);
-        mBarChart.setDoubleTapToZoomEnabled(false);
-        mBarChart.getXAxis().setDrawGridLines(false);
-        mBarChart.getXAxis().setDrawAxisLine(false);
-        mBarChart.getAxisRight().setDrawAxisLine(false);
-        mBarChart.getAxisLeft().setDrawGridLines(false);
-        mBarChart.getAxisLeft().setDrawAxisLine(false);
-        mBarChart.getAxisRight().setDrawGridLines(false);
-        mBarChart.getAxisLeft().setDrawLabels(false);
-        mBarChart.getAxisRight().setDrawLabels(false);
-        mBarChart.getXAxis().setDrawLabels(false);
-        mBarChart.setDrawBorders(false);
-        mBarChart.getLegend().setEnabled(false);
-        mBarChart.getDescription().setEnabled(false);
-        mBarChart.setNoDataText("Na há nenhum dado");
     }
 
     @Override
@@ -167,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void drawTemperatures(){
         try{
-            bar.setProgress(mTemperature.getTempAtual());
+            mProgressBar.setProgress(mTemperature.getTempAtual());
         }catch (Exception e){
 
         }
@@ -179,8 +164,8 @@ public class MainActivity extends AppCompatActivity {
         BarDataSet dataset = new BarDataSet(entries,"Temperaturas");
         BarData data = new BarData(dataset);
 
-        mBarChart.setData(data);
-        mBarChart.invalidate();
+        mHorizontalBarChart.setData(data);
+        mHorizontalBarChart.invalidate();
 
         requestTemperature();
     }
@@ -211,37 +196,47 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(mUsbReceiver, filter);
     }
 
-    private BarDataSet getDataSet() {
-        ArrayList<BarEntry> entries = new ArrayList();
-        entries.add(new BarEntry(1f, 4));
-        entries.add(new BarEntry(2f, 1));
-        entries.add(new BarEntry(3f, 2));
-
-        BarDataSet dataset = new BarDataSet(entries,"Temperaturas");
-        return dataset;
-    }
-
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case UsbService.ACTION_USB_PERMISSION_GRANTED: // USB PERMISSION GRANTED
-                    Toast.makeText(context, "Disposivo pronto", Toast.LENGTH_SHORT).show();
                     mMenu.getItem(0).setEnabled(true);
                     if(isOnNoUSB) hideNoUsbFrame();
                     break;
                 case UsbService.ACTION_USB_PERMISSION_NOT_GRANTED: // USB PERMISSION NOT GRANTED
                     if(!isOnNoUSB) showNoUsbFrame();
+                    mTextNoUsb.setText("Nenhum dispositivo conectado");
                     Toast.makeText(context, "Dispositivo não tem permisão", Toast.LENGTH_SHORT).show();
                     break;
                 case UsbService.ACTION_USB_ATTACHED:
-                    Toast.makeText(context, "Dispositivo conectado", Toast.LENGTH_SHORT).show();
+                    mTextNoUsb.setText("Carregando...");
                     break;
                 case UsbService.ACTION_USB_DISCONNECTED: // USB DISCONNECTED
                     if(!isOnNoUSB) showNoUsbFrame();
-                    Toast.makeText(context, "Dispositivo desconectado", Toast.LENGTH_SHORT).show();
+                    mTextNoUsb.setText("Nenhum dispositivo conectado");
                     break;
             }
         }
     };
+
+
+
+    private void chartConfig(){
+        mHorizontalBarChart.setPinchZoom(false);
+        mHorizontalBarChart.setDoubleTapToZoomEnabled(false);
+        mHorizontalBarChart.getXAxis().setDrawGridLines(false);
+        mHorizontalBarChart.getXAxis().setDrawAxisLine(false);
+        mHorizontalBarChart.getAxisRight().setDrawAxisLine(false);
+        mHorizontalBarChart.getAxisLeft().setDrawGridLines(false);
+        mHorizontalBarChart.getAxisLeft().setDrawAxisLine(false);
+        mHorizontalBarChart.getAxisRight().setDrawGridLines(false);
+        mHorizontalBarChart.getAxisLeft().setDrawLabels(false);
+        mHorizontalBarChart.getAxisRight().setDrawLabels(false);
+        mHorizontalBarChart.getXAxis().setDrawLabels(false);
+        mHorizontalBarChart.setDrawBorders(false);
+        mHorizontalBarChart.getLegend().setEnabled(false);
+        mHorizontalBarChart.getDescription().setEnabled(false);
+        mHorizontalBarChart.setNoDataText("Na há nenhum dado");
+    }
 }
