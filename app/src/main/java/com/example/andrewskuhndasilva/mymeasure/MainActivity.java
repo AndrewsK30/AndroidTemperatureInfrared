@@ -1,12 +1,13 @@
 package com.example.andrewskuhndasilva.mymeasure;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -19,35 +20,38 @@ import android.widget.Toast;
 import com.example.andrewskuhndasilva.mymeasure.data.Temperature;
 import com.example.andrewskuhndasilva.mymeasure.handlers.UsbHandler;
 import com.example.andrewskuhndasilva.mymeasure.service.UsbService;
-import com.example.andrewskuhndasilva.mymeasure.service.UsbServiceConnection;
 import com.example.andrewskuhndasilva.mymeasure.widget.CustomSeekBar;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
-import com.github.mikephil.charting.components.Description;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m")
 public class MainActivity extends AppCompatActivity {
 
-    private final int TIMER_DELAY = 500;
     private UsbHandler mHandler = new UsbHandler(this);
-    private final UsbServiceConnection usbConnection = new UsbServiceConnection(mHandler);
+    private UsbService usbService;
+
+    private final ServiceConnection usbConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName arg0, IBinder arg1) {
+            usbService = ((UsbService.UsbBinder) arg1).getService();
+            usbService.setHandler(mHandler);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            usbService = null;
+        }
+    };
     @Getter
     private Temperature mTemperature = new Temperature();
-    private Timer mTimer = new Timer();
-    private boolean isTimerRunning;
     private HorizontalBarChart mBarChart;
     private Menu mMenu;
     private AlphaAnimation inAnimation;
@@ -55,19 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isOnNoUSB = true;
     private ConstraintLayout mNoUsb;
     private CustomSeekBar bar;
-    private TimerTask mTimerTask = new TimerTask() {
-        @Override
-        public void run() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (usbConnection != null) { // if UsbService was correctly binded, Send data
-                        usbConnection.sendMessage(new String("0"));
-                    }
-                }
-            });
-        }
-    };
+    private boolean isRedingTemp;
 
 
     @Override
@@ -75,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mNoUsb = findViewById(R.id.no_usb_frame);
+        bar = findViewById(R.id.seek_arc);
         mBarChart = findViewById(R.id.chart);
         this.chartConfig();
     }
@@ -82,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
     private void chartConfig(){
         mBarChart.setPinchZoom(false);
         mBarChart.setDoubleTapToZoomEnabled(false);
-        BarData data = new BarData(getDataSet());
         mBarChart.getXAxis().setDrawGridLines(false);
         mBarChart.getXAxis().setDrawAxisLine(false);
         mBarChart.getAxisRight().setDrawAxisLine(false);
@@ -93,11 +85,8 @@ public class MainActivity extends AppCompatActivity {
         mBarChart.getAxisRight().setDrawLabels(false);
         mBarChart.getXAxis().setDrawLabels(false);
         mBarChart.setDrawBorders(false);
-        mBarChart.setData(data);
         mBarChart.getLegend().setEnabled(false);
         mBarChart.getDescription().setEnabled(false);
-        mBarChart.animateXY(2000, 2000);
-        mBarChart.invalidate();
     }
 
     @Override
@@ -140,20 +129,22 @@ public class MainActivity extends AppCompatActivity {
         unbindService(usbConnection);
     }
 
-    private void initTimer(){
-        isTimerRunning = true;
-        mTimer = new Timer();
-        mTimer.scheduleAtFixedRate(mTimerTask,0,TIMER_DELAY);
+    private void requestTemperature(){
+        if (usbConnection != null && isRedingTemp) { // if UsbService was correctly binded, Send data
+            usbService.write(new String("0").getBytes());
+        }
     }
+
 
     private void handleTemperatureRead(){
         MenuItem menuItem = mMenu.findItem(R.id.readTemperature);
-        if (isTimerRunning){
-            cancelTimer();
+        if (isRedingTemp){
+            isRedingTemp= false;
             menuItem.setTitle(R.string.read_desactive);
         }else{
             menuItem.setTitle(R.string.read_active);
-            initTimer();
+            isRedingTemp = true;
+            requestTemperature();
         }
     }
 
@@ -173,14 +164,25 @@ public class MainActivity extends AppCompatActivity {
         mNoUsb.setVisibility(View.GONE);
     }
 
-    private void cancelTimer(){
-        isTimerRunning = false;
-        mTimer.cancel();
-        mTemperature.clean();
-    }
 
     public void drawTemperatures(){
-        bar.setProgress(mTemperature.getTempAtual());
+        try{
+            bar.setProgress(mTemperature.getTempAtual());
+        }catch (Exception e){
+
+        }
+        ArrayList<BarEntry> entries = new ArrayList();
+        entries.add(new BarEntry(1f, mTemperature.getTempMax()));
+        entries.add(new BarEntry(2f, mTemperature.getTempMed()));
+        entries.add(new BarEntry(3f, mTemperature.getTempMin()));
+
+        BarDataSet dataset = new BarDataSet(entries,"Temperaturas");
+        BarData data = new BarData(dataset);
+
+        mBarChart.setData(data);
+        mBarChart.invalidate();
+
+        requestTemperature();
     }
 
     private void startService(Class<?> service, ServiceConnection serviceConnection, Bundle extras) {

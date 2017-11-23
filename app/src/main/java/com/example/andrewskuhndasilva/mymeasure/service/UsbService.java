@@ -40,6 +40,7 @@ public class UsbService extends Service {
     private static final int BAUD_RATE = 115200; // BaudRate. Change this value if you need
     public static boolean SERVICE_CONNECTED = false;
     private IBinder binder = new UsbBinder();
+    private int connectionTime = 0;
 
     private Context context;
     private Handler mHandler;
@@ -95,7 +96,7 @@ public class UsbService extends Service {
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context arg0, Intent arg1) {
-            if (arg1.getAction().equals(ACTION_USB_PERMISSION)) {
+            if (arg1.getAction().equals(ACTION_USB_PERMISSION) && connectionTime > 0) {
                 boolean granted = arg1.getExtras().getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED);
                 if (granted) // User accepted our USB connection. Try to open the device as a serial port
                 {
@@ -108,7 +109,8 @@ public class UsbService extends Service {
                     Intent intent = new Intent(ACTION_USB_PERMISSION_NOT_GRANTED);
                     arg0.sendBroadcast(intent);
                 }
-            } else if (arg1.getAction().equals(ACTION_USB_ATTACHED)) {
+                connectionTime = 2;
+            } else if (arg1.getAction().equals(ACTION_USB_ATTACHED) && connectionTime > 0) {
                 if (!serialPortConnected){
                     try {
                         findSerialPortDevice(); // A USB device has been attached. Try to open it as a Serial port
@@ -118,6 +120,7 @@ public class UsbService extends Service {
                 }
             } else if (arg1.getAction().equals(ACTION_USB_DETACHED)) {
                 // Usb device was disconnected. send an intent to the Main Activity
+                connectionTime = connectionTime == 2 ? 0 : 1;
                 Intent intent = new Intent(ACTION_USB_DISCONNECTED);
                 arg0.sendBroadcast(intent);
                 if (serialPortConnected) {
@@ -180,7 +183,7 @@ public class UsbService extends Service {
 
     private void findSerialPortDevice() throws InterruptedException {
         // This snippet will try to open the first encountered usb device connected, excluding usb root hubs
-        Thread.sleep(7000); // sleep some. YMMV with different chips.
+        //Thread.sleep(7000); // sleep some. YMMV with different chips.
         HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
         if (!usbDevices.isEmpty()) {
             boolean keep = true;
@@ -242,7 +245,7 @@ public class UsbService extends Service {
     private class ConnectionThread extends Thread {
         @Override
         public void run() {
-            serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection);
+            serialPort = new CDCSerialDevice(device, connection);
             if (serialPort != null) {
                 if (serialPort.open()) {
                     serialPortConnected = true;

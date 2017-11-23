@@ -1,6 +1,7 @@
 package com.example.andrewskuhndasilva.mymeasure.widget;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
@@ -27,5 +28,6 @@ public class CustomSeekBar extends ShaderSeekArc {
     public boolean onTouchEvent(MotionEvent event) {
         return false;
     }
+
 
 }
