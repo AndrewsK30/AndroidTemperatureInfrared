@@ -8,7 +8,7 @@
     android:background="@color/Back_color"
     tools:context=".MainActivity">
 
-    <com.example.andrewskuhndasilva.mymeasure.widget.CustomSeekBar
+    <com.example.andrewskuhndasilva.mymeasure.CustomSeekBar
         android:id="@+id/seek_arc"
         android:layout_width="307dp"
         android:layout_height="298dp"
@@ -62,40 +62,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/no_usb_frame"
-        android:layout_width="385dp"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        android:animateLayoutChanges="true"
-        android:background="@color/Back_color"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="-1dp"
-        tools:visibility="visible">
-
-        <TextView
-            android:id="@+id/text_no_usb"
-            android:layout_width="334dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:text="Nenhum dispositivo conectado"
-            android:textColor="@android:color/background_light"
-            android:textSize="23sp"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </android.support.constraint.ConstraintLayout>
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
@@ -144,5 +110,51 @@
         app:layout_constraintHorizontal_bias="0.027"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/no_usb_frame"
+        android:layout_width="385dp"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:animateLayoutChanges="true"
+        android:background="@color/Back_color"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="-1dp"
+        tools:visibility="gone">
 
+        <TextView
+            android:id="@+id/text_no_usb"
+            android:layout_width="334dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Nenhum dispositivo conectado"
+            android:textColor="@android:color/background_light"
+            android:textSize="23sp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.485"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.668" />
+
+        <ImageView
+            android:layout_width="187dp"
+            android:layout_height="194dp"
+            android:layout_marginBottom="196dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/ic_usb_connector"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.701" />
+    </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

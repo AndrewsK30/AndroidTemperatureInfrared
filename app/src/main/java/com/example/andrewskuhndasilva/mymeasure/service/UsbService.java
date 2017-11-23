@@ -40,7 +40,7 @@ public class UsbService extends Service {
     private static final int BAUD_RATE = 115200; // BaudRate. Change this value if you need
     public static boolean SERVICE_CONNECTED = false;
     private IBinder binder = new UsbBinder();
-    private int connectionTime = 0;
+    private int mConnectionTime = 0;
 
     private Context context;
     private Handler mHandler;
@@ -48,7 +48,6 @@ public class UsbService extends Service {
     private UsbDevice device;
     private UsbDeviceConnection connection;
     private UsbSerialDevice serialPort;
-    public static Integer mTimesOfDetached = 0;
     private boolean serialPortConnected;
     /*
      *  Data received from serial port will be received here. Just populate onReceivedData with your code
@@ -96,7 +95,7 @@ public class UsbService extends Service {
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context arg0, Intent arg1) {
-            if (arg1.getAction().equals(ACTION_USB_PERMISSION) && connectionTime > 0) {
+            if (arg1.getAction().equals(ACTION_USB_PERMISSION) && mConnectionTime > 0) {
                 boolean granted = arg1.getExtras().getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED);
                 if (granted) // User accepted our USB connection. Try to open the device as a serial port
                 {
@@ -109,8 +108,8 @@ public class UsbService extends Service {
                     Intent intent = new Intent(ACTION_USB_PERMISSION_NOT_GRANTED);
                     arg0.sendBroadcast(intent);
                 }
-                connectionTime = 2;
-            } else if (arg1.getAction().equals(ACTION_USB_ATTACHED) && connectionTime > 0) {
+                mConnectionTime = 2;
+            } else if (arg1.getAction().equals(ACTION_USB_ATTACHED) && mConnectionTime > 0) {
                 if (!serialPortConnected){
                     try {
                         findSerialPortDevice(); // A USB device has been attached. Try to open it as a Serial port
@@ -120,7 +119,7 @@ public class UsbService extends Service {
                 }
             } else if (arg1.getAction().equals(ACTION_USB_DETACHED)) {
                 // Usb device was disconnected. send an intent to the Main Activity
-                connectionTime = connectionTime == 2 ? 0 : 1;
+                mConnectionTime = mConnectionTime == 2 ? 0 : 1;
                 Intent intent = new Intent(ACTION_USB_DISCONNECTED);
                 arg0.sendBroadcast(intent);
                 if (serialPortConnected) {
@@ -245,44 +244,49 @@ public class UsbService extends Service {
     private class ConnectionThread extends Thread {
         @Override
         public void run() {
-            serialPort = new CDCSerialDevice(device, connection);
-            if (serialPort != null) {
-                if (serialPort.open()) {
-                    serialPortConnected = true;
-                    serialPort.setBaudRate(BAUD_RATE);
-                    serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
-                    serialPort.setStopBits(UsbSerialInterface.STOP_BITS_1);
-                    serialPort.setParity(UsbSerialInterface.PARITY_NONE);
-                    /**
-                     * Current flow control Options:
-                     * UsbSerialInterface.FLOW_CONTROL_OFF
-                     * UsbSerialInterface.FLOW_CONTROL_RTS_CTS only for CP2102 and FT232
-                     * UsbSerialInterface.FLOW_CONTROL_DSR_DTR only for CP2102 and FT232
-                     */
-                    serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
-                    serialPort.read(mCallback);
-                    serialPort.getCTS(ctsCallback);
-                    serialPort.getDSR(dsrCallback);
-                    
-                    //
-                    // Some Arduinos would need some sleep because firmware wait some time to know whether a new sketch is going 
-                    // to be uploaded or not
+            try {
 
-                    
-                    // Everything went as expected. Send an intent to MainActivity
-                    Intent intent = new Intent(ACTION_USB_READY);
-                    context.sendBroadcast(intent);
-                } else {
-                    // Serial port could not be opened, maybe an I/O error or if CDC driver was chosen, it does not really fit
-                    // Send an Intent to Main Activity
-                    if (serialPort instanceof CDCSerialDevice) {
-                        Intent intent = new Intent(ACTION_CDC_DRIVER_NOT_WORKING);
+                serialPort = new CDCSerialDevice(device, connection);
+                if (serialPort != null) {
+                    if (serialPort.open()) {
+                        serialPortConnected = true;
+                        serialPort.setBaudRate(BAUD_RATE);
+                        serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
+                        serialPort.setStopBits(UsbSerialInterface.STOP_BITS_1);
+                        serialPort.setParity(UsbSerialInterface.PARITY_NONE);
+                        /**
+                         * Current flow control Options:
+                         * UsbSerialInterface.FLOW_CONTROL_OFF
+                         * UsbSerialInterface.FLOW_CONTROL_RTS_CTS only for CP2102 and FT232
+                         * UsbSerialInterface.FLOW_CONTROL_DSR_DTR only for CP2102 and FT232
+                         */
+                        serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
+                        serialPort.read(mCallback);
+                        serialPort.getCTS(ctsCallback);
+                        serialPort.getDSR(dsrCallback);
+
+                        //
+                        // Some Arduinos would need some sleep because firmware wait some time to know whether a new sketch is going
+                        // to be uploaded or not
+
+
+                        // Everything went as expected. Send an intent to MainActivity
+                        Intent intent = new Intent(ACTION_USB_READY);
                         context.sendBroadcast(intent);
                     } else {
-                        Intent intent = new Intent(ACTION_USB_DEVICE_NOT_WORKING);
-                        context.sendBroadcast(intent);
+                        // Serial port could not be opened, maybe an I/O error or if CDC driver was chosen, it does not really fit
+                        // Send an Intent to Main Activity
+                        if (serialPort instanceof CDCSerialDevice) {
+                            Intent intent = new Intent(ACTION_CDC_DRIVER_NOT_WORKING);
+                            context.sendBroadcast(intent);
+                        } else {
+                            Intent intent = new Intent(ACTION_USB_DEVICE_NOT_WORKING);
+                            context.sendBroadcast(intent);
+                        }
                     }
                 }
+            }catch (Exception e){
+
             }
         }
     }

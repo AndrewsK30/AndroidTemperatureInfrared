@@ -20,7 +20,6 @@ import android.widget.Toast;
 import com.example.andrewskuhndasilva.mymeasure.data.Temperature;
 import com.example.andrewskuhndasilva.mymeasure.handlers.UsbHandler;
 import com.example.andrewskuhndasilva.mymeasure.service.UsbService;
-import com.example.andrewskuhndasilva.mymeasure.widget.CustomSeekBar;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
@@ -87,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         mBarChart.setDrawBorders(false);
         mBarChart.getLegend().setEnabled(false);
         mBarChart.getDescription().setEnabled(false);
+        mBarChart.setNoDataText("Na há nenhum dado");
     }
 
     @Override
