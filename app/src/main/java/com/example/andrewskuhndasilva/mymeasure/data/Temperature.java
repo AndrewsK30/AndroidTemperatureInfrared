@@ -1,7 +1,10 @@
 package com.example.andrewskuhndasilva.mymeasure.data;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 
 import lombok.Getter;
@@ -21,33 +24,48 @@ public class Temperature {
     private Float mTempMed = .0f;
     private Float mTempMin;
     private Float mTempMax;
+    private List<Float> mTempHolder = new ArrayList<>();
     @Setter
     private Runnable mCleanCallBack;
     @Setter
     private Runnable mAddCallBack;
     protected int mNumberOfItens = 0;
 
-
     public void addTemperature(Float temperature){
 
-        if (temperature == null ) return;
+        assert temperature != null;
+
+        if(mTempHolder.size() < 20){
+
+            mTempHolder.add(temperature);
+            if (mAddCallBack != null) mAddCallBack.run();
+            return;
+        }else{
+            mTempAtual = medOfHolderTemp();
+            mTempAtual += 0.6f;
+            mTempHolder.clear();
+        }
 
         mNumberOfItens++;
-        mTempAtual = temperature;
         calculateTemps();
         if (mAddCallBack != null) mAddCallBack.run();
     }
 
     public void addTemperature(String  temperature){
-        this.addTemperature(Float.valueOf(temperature));
+        try {
+            this.addTemperature(Float.valueOf(temperature));
+        }catch (NumberFormatException e){
+            e.printStackTrace();
+        }
     }
 
     public void clean(){
-        mTempAtual = 0f;
+        mTempAtual = null;
         mTempMed = 0f;
-        mTempMin = 0f;
-        mTempMax = 0f;
+        mTempMin = null;
+        mTempMax = null;
         mNumberOfItens = 0;
+        mTempHolder = new ArrayList<>();
         if(mCleanCallBack != null) mCleanCallBack.run();
     }
 
@@ -61,10 +79,22 @@ public class Temperature {
         if (mTempMax == null || mTempAtual > mTempMax){
             mTempMax = mTempAtual;
         }
-
-
-        mTempMed /= mNumberOfItens;
-
     }
 
+    private float medOfHolderTemp(){
+        float medTemp = 0;
+        for (Float temp: mTempHolder) {
+            medTemp += temp;
+        }
+        BigDecimal bd = new BigDecimal(medTemp/mTempHolder.size());
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        return bd.floatValue();
+    }
+
+    public Float getTempMed(){
+        if(mNumberOfItens == 0) return .0f;
+        BigDecimal bd = new BigDecimal(mTempMed/mNumberOfItens);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        return bd.floatValue();
+    }
 }

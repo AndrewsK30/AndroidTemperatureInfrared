@@ -3,54 +3,27 @@ package com.example.andrewskuhndasilva.mymeasure.data;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 /**
- * Created by andrews.silva on 24/11/2017.
+ * Created by andrewskuhndasilva on 24/11/2017.
  */
 public class TemperatureTest {
     @Test
     public void addTemperature() throws Exception {
+
+        List<Float> temps = Arrays.asList(22.33f,22.43f,22.43f,22.43f,21.43f,22.53f,22.33f,23.13f,22.03f,20.43f,21.43f,21.43f);
+        List<Float> temps2 = Arrays.asList(22.33f,22.43f,22.43f,22.43f,21.43f,22.53f,22.33f,23.13f,22.03f,20.43f);
         Temperature temperature = new Temperature();
-        Float[] temps ={22.02f,24.02f};
-        temperature.addTemperature(temps[0]);
-        temperature.addTemperature(temps[1]);
 
-        Assert.assertEquals(2,temperature.getNumberOfItens());
-        Assert.assertEquals(temps[1],temperature.getTempAtual());
-        Assert.assertEquals(temps[0],temperature.getTempMin());
-        Assert.assertEquals(temps[1],temperature.getTempMax());
-        Assert.assertEquals(Float.valueOf((temps[1]+temps[0])/2),temperature.getTempMed());
-    }
-
-    @Test
-    public void addTemperature1() throws Exception {
-
-        Temperature temperature = new Temperature();
-        String[] temps ={"22.02f","24.02f"};
-        temperature.addTemperature(temps[0]);
-        temperature.addTemperature(temps[1]);
-
-        Assert.assertEquals(2,temperature.getNumberOfItens());
-        Assert.assertEquals(Float.valueOf(temps[1]),temperature.getTempAtual());
-        Assert.assertEquals(Float.valueOf(temps[0]),temperature.getTempMin());
-        Assert.assertEquals(Float.valueOf(temps[1]),temperature.getTempMax());
-        Assert.assertEquals(Float.valueOf((Float.valueOf(temps[1])+Float.valueOf(temps[0]))/2),temperature.getTempMed());
-    }
-
-    @Test
-    public void clean() throws Exception {
-        Temperature temperature = new Temperature();
-        Float[] temps ={22.02f,24.02f};
-        temperature.addTemperature(temps[0]);
-        temperature.addTemperature(temps[1]);
-        temperature.clean();
-        Float float_0 = new Float(.0f);
-        Assert.assertEquals(0,temperature.getNumberOfItens());
-        Assert.assertEquals(float_0,temperature.getTempAtual());
-        Assert.assertEquals(float_0,temperature.getTempMin());
-        Assert.assertEquals(float_0,temperature.getTempMax());
-        Assert.assertEquals(float_0,temperature.getTempMed());
+        assert temps.size() > 9;
+        temps.forEach(temperature::addTemperature);
+        Float med = temps2.stream().reduce(0f,(v,s) -> v+s)/10;
+        Assert.assertEquals(new Float(med+0.2f),temperature.getTempAtual());
 
 
 

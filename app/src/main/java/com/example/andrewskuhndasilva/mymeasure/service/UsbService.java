@@ -13,6 +13,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 
+import com.example.andrewskuhndasilva.mymeasure.handlers.UsbHandler;
 import com.felhr.usbserial.CDCSerialDevice;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
@@ -43,7 +44,7 @@ public class UsbService extends Service {
     private int mConnectionTime = 0;
 
     private Context context;
-    private Handler mHandler;
+    private UsbHandler mHandler;
     private UsbManager usbManager;
     private UsbDevice device;
     private UsbDeviceConnection connection;
@@ -59,6 +60,10 @@ public class UsbService extends Service {
         public void onReceivedData(byte[] arg0) {
             try {
                 String data = new String(arg0, "UTF-8");
+                if (data.equals("1")){
+                    System.out.println("este");
+
+                }
                 if (mHandler != null)
                     mHandler.obtainMessage(MESSAGE_FROM_SERIAL_PORT, data).sendToTarget();
             } catch (UnsupportedEncodingException e) {
@@ -122,9 +127,12 @@ public class UsbService extends Service {
                 mConnectionTime = mConnectionTime == 2 ? 0 : 1;
                 Intent intent = new Intent(ACTION_USB_DISCONNECTED);
                 arg0.sendBroadcast(intent);
+
                 if (serialPortConnected) {
                     serialPort.close();
+                    mHandler.cleanBuffer();
                 }
+
                 serialPortConnected = false;
             }
         }
@@ -176,7 +184,7 @@ public class UsbService extends Service {
             serialPort.write(data);
     }
 
-    public void setHandler(Handler mHandler) {
+    public void setHandler(UsbHandler mHandler) {
         this.mHandler = mHandler;
     }
 

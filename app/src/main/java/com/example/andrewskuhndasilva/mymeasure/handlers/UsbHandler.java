@@ -15,6 +15,7 @@ import java.lang.ref.WeakReference;
 public class UsbHandler extends Handler {
     private final WeakReference<MainActivity> mActivity;
     private String mBuffer="";
+    private int counterBeforeBegin = 0;
 
     public UsbHandler(MainActivity activity) {
         mActivity = new WeakReference<>(activity);
@@ -25,7 +26,7 @@ public class UsbHandler extends Handler {
         switch (msg.what) {
             case UsbService.MESSAGE_FROM_SERIAL_PORT:
                 String data = (String) msg.obj;
-                if (data != null && !data.equals("")){
+                if(data != null && !data.equals("")){
                     MainActivity activity = mActivity.get();
                     mBuffer = mBuffer + data;
                     if(mBuffer.contains("\r\n")) {
@@ -37,4 +38,8 @@ public class UsbHandler extends Handler {
                 break;
         }
     }
+
+    public void cleanBuffer(){
+        mBuffer="";
+    };
 }

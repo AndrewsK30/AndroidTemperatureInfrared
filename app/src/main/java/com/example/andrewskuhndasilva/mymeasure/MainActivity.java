@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.example.andrewskuhndasilva.mymeasure.data.Temperature;
 import com.example.andrewskuhndasilva.mymeasure.handlers.UsbHandler;
@@ -67,12 +68,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setIcon(R.mipmap.ic_launcher);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         setContentView(R.layout.activity_main);
         mNoUsb = findViewById(R.id.no_usb_frame);
         mProgressBar = findViewById(R.id.seek_arc);
         mHorizontalBarChart = findViewById(R.id.chart);
         mTextNoUsb = findViewById(R.id.text_no_usb);
         this.chartConfig();
+        mProgressBar.setProgress(0f);
+        setBarMinMedMax(0,0f,0f);
     }
 
     @Override
@@ -115,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         unbindService(usbConnection);
     }
 
-    private void requestTemperature(){
+    public void requestTemperature(){
         if (usbConnection != null && isRedingTemp) { // if UsbService was correctly binded, Send data
             usbService.write(new String("0").getBytes());
         }
@@ -152,23 +157,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void drawTemperatures(){
-        try{
-            mProgressBar.setProgress(mTemperature.getTempAtual());
-        }catch (Exception e){
-
+        if(mTemperature.getTempAtual() == null){
+            requestTemperature();
+            return;
         }
-        ArrayList<BarEntry> entries = new ArrayList();
-        entries.add(new BarEntry(1f, mTemperature.getTempMax()));
-        entries.add(new BarEntry(2f, mTemperature.getTempMed()));
-        entries.add(new BarEntry(3f, mTemperature.getTempMin()));
-
-        BarDataSet dataset = new BarDataSet(entries,"Temperaturas");
-        dataset.setValueTextColor(Color.parseColor("#FFFFFF"));
-        BarData data = new BarData(dataset);
-
-        mHorizontalBarChart.setData(data);
-        mHorizontalBarChart.invalidate();
-
+        mProgressBar.setProgress(mTemperature.getTempAtual());
+        setBarMinMedMax(mTemperature.getTempMin(),mTemperature.getTempMed(),mTemperature.getTempMax());
         requestTemperature();
     }
 
@@ -215,19 +209,32 @@ public class MainActivity extends AppCompatActivity {
                     mTextNoUsb.setText("Carregando...");
                     break;
                 case UsbService.ACTION_USB_DISCONNECTED: // USB DISCONNECTED
-                    if(!isOnNoUSB) showNoUsbFrame();
-                    isRedingTemp = false;
-                    mTemperature.clean();
-                    handleTemperatureRead();
-                    mTextNoUsb.setText("Nenhum dispositivo conectado");
-                    MenuItem menuItem = mMenu.findItem(R.id.readTemperature);
-                    menuItem.setEnabled(false);
+                    if(!isOnNoUSB) {
+                        showNoUsbFrame();
+                        mTemperature.clean();
+                        mProgressBar.setProgress(.0f);
+                        handleTemperatureRead();
+                        mTextNoUsb.setText("Nenhum dispositivo conectado");
+                        MenuItem menuItem = mMenu.findItem(R.id.readTemperature);
+                        menuItem.setEnabled(false);
+                        setBarMinMedMax(0f,0f,0f);
+                    }
                     break;
             }
         }
     };
 
-
+    private void setBarMinMedMax(float min,float med, float max){
+        ArrayList<BarEntry> entries = new ArrayList<>();
+        entries.add(new BarEntry(1f, new float[]{-70,max}));
+        entries.add(new BarEntry(2f, new float[]{-70,med}));
+        entries.add(new BarEntry(3f, new float[]{-70,min}));
+        BarDataSet dataset = new BarDataSet(entries,"Temperaturas");
+        dataset.setValueTextColor(Color.parseColor("#FFFFFF"));
+        BarData data = new BarData(dataset);
+        mHorizontalBarChart.setData(data);
+        mHorizontalBarChart.invalidate();
+    }
 
     private void chartConfig(){
         mHorizontalBarChart.setPinchZoom(false);
@@ -242,6 +249,10 @@ public class MainActivity extends AppCompatActivity {
         mHorizontalBarChart.getAxisRight().setDrawLabels(false);
         mHorizontalBarChart.getXAxis().setDrawLabels(false);
         mHorizontalBarChart.setDrawBorders(false);
+        mHorizontalBarChart.getAxisRight().setAxisMinimum(-70f);
+        mHorizontalBarChart.getAxisLeft().setAxisMinimum(-70f);
+        mHorizontalBarChart.getAxisRight().setAxisMaximum(380f);
+        mHorizontalBarChart.getAxisLeft().setAxisMaximum(380f);
         mHorizontalBarChart.getLegend().setEnabled(false);
         mHorizontalBarChart.getDescription().setEnabled(false);
         mHorizontalBarChart.setNoDataText("Na há nenhum dado");
