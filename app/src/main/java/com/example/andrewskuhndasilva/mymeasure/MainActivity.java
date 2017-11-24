@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.constraint.ConstraintLayout;
@@ -162,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
         entries.add(new BarEntry(3f, mTemperature.getTempMin()));
 
         BarDataSet dataset = new BarDataSet(entries,"Temperaturas");
+        dataset.setValueTextColor(Color.parseColor("#FFFFFF"));
         BarData data = new BarData(dataset);
 
         mHorizontalBarChart.setData(data);

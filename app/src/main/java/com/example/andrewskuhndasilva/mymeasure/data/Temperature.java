@@ -18,7 +18,7 @@ import lombok.experimental.Accessors;
 public class Temperature {
 
     private Float mTempAtual;
-    private Float mTempMed;
+    private Float mTempMed = .0f;
     private Float mTempMin;
     private Float mTempMax;
     @Setter
