@@ -1,5 +1,0 @@
-<resources>
-    <string name="app_name">MyMeasure</string>
-    <string name="read_active">Desativar leitura</string>
-    <string name="read_desactive">Ativar leitura</string>
-</resources>
