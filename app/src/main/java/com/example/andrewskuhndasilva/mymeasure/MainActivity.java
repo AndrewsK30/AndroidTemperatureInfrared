@@ -214,7 +214,12 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case UsbService.ACTION_USB_DISCONNECTED: // USB DISCONNECTED
                     if(!isOnNoUSB) showNoUsbFrame();
+                    isRedingTemp = false;
+                    mTemperature.clean();
+                    handleTemperatureRead();
                     mTextNoUsb.setText("Nenhum dispositivo conectado");
+                    MenuItem menuItem = mMenu.findItem(R.id.readTemperature);
+                    menuItem.setEnabled(false);
                     break;
             }
         }

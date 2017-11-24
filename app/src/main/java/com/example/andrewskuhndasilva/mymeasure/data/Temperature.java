@@ -25,14 +25,14 @@ public class Temperature {
     private Runnable mCleanCallBack;
     @Setter
     private Runnable mAddCallBack;
-    protected ArrayList<Float> mTemperaturaArray = new ArrayList<>();
+    protected int mNumberOfItens = 0;
 
 
     public void addTemperature(Float temperature){
 
-        if (temperature == null) return;
+        if (temperature == null ) return;
 
-        mTemperaturaArray.add(temperature);
+        mNumberOfItens++;
         mTempAtual = temperature;
         calculateTemps();
         if (mAddCallBack != null) mAddCallBack.run();
@@ -47,27 +47,23 @@ public class Temperature {
         mTempMed = 0f;
         mTempMin = 0f;
         mTempMax = 0f;
-        mTemperaturaArray = new ArrayList<>();
+        mNumberOfItens = 0;
         if(mCleanCallBack != null) mCleanCallBack.run();
     }
 
     private void calculateTemps(){
-        Iterator<Float> temps = mTemperaturaArray.iterator();
-        mTempMed = 0f;
-        while (temps.hasNext()){
-            Float atual = temps.next();
-            mTempMed+= atual;
+        mTempMed+= mTempAtual;
 
-            if (mTempMin == null || atual < mTempMin){
-                mTempMin = atual;
-            }
-
-            if (mTempMax == null || atual > mTempMax){
-                mTempMax = atual;
-            }
+        if (mTempMin == null || mTempAtual < mTempMin){
+            mTempMin = mTempAtual;
         }
 
-        mTempMed /= mTemperaturaArray.size();
+        if (mTempMax == null || mTempAtual > mTempMax){
+            mTempMax = mTempAtual;
+        }
+
+
+        mTempMed /= mNumberOfItens;
 
     }
 
